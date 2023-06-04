@@ -11,7 +11,42 @@ Task 2
 Echo server with threading
 
 Create a socket echo server which handles each connection in a separate Thread
+import socket
+import threading
 
+# Function to handle each client connection
+def handle_client(client_socket):
+    while True:
+        # Receive data from the client
+        data = client_socket.recv(1024)
+        if not data:
+            break
+        # Echo the received data back to the client
+        client_socket.sendall(data)
+    # Close the client socket
+    client_socket.close()
+
+# Create a socket object
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Bind the socket to a specific address and port
+server_address = ('localhost', 8000)
+server_socket.bind(server_address)
+
+# Start listening for incoming connections
+server_socket.listen(5)
+print('Server is listening on {}:{}'.format(*server_address))
+
+while True:
+    # Wait for a client connection
+    client_socket, client_address = server_socket.accept()
+    print('New connection from {}:{}'.format(*client_address))
+
+    # Create a new thread to handle the client connection
+    client_thread = threading.Thread(target=handle_client, args=(client_socket,))
+    client_thread.start()
+
+ 
  
 
 Task 3
