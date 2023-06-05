@@ -1,9 +1,79 @@
 Task 1
 
-A shared counter
+#A shared counter
 
-Make a class called Counter, and make it a subclass of the Thread class in the Threading module. Make the class have two global variables, one called counter set to 0, and another called rounds set to 100.000. Now implement the run() method, let it include a simple for-loop that iterates through rounds (e.i. 100.000 times) and for each time increments the value of the counter by 1. Create 2 instances of the thread and start them, then join them and check the result of the counter, it should be 200.000, right? Run it a couple of times and consider some different reasons why you get the answer that you get. 
+#Make a class called Counter, and make it a subclass of the Thread class in the Threading module. Make the class have two global variables, one called counter set to 0, and another called rounds set to 100.000. Now implement the run() method, let it include a simple for-loop that iterates through rounds (e.i. 100.000 times) and for each time increments the value of the counter by 1. Create 2 instances of the thread and start them, then join them and check the result of the counter, it should be 200.000, right? Run it a couple of times and consider some different reasons why you get the answer that you get. 
 
+import threading
+
+class Counter(threading.Thread):
+    counter = 0
+    rounds = 100000
+
+    def run(self):
+        for _ in range(self.rounds):
+            self.counter += 1
+
+
+counter_thread1 = Counter()
+counter_thread2 = Counter()
+
+
+counter_thread1.start()
+counter_thread2.start()
+
+
+counter_thread1.join()
+counter_thread2.join()
+
+
+result = Counter.counter
+print("Counter result:", result)
+
+#консоль : 
+#Counter result: 0 
+
+
+
+
+Через те, що лічильник є спільною змінною, до якої мають доступ декілька потоків, можуть виникати конкуренція за ресурс, коли обидва потоки намагаються оновити лічильник одночасно, що призводить до неочікуваних результатів.
+Ця проблема виникає через відсутність механізмів синхронізації, таких як lock, які гарантують, що тільки один потік може отримати доступ до спільної змінної одночасно.
+
+Щоб вирішити цю проблему, можна ввести lock для критичної ділянки, де оновлюється лічильник. 
+
+import threading
+
+class Counter(threading.Thread):
+    counter = 0
+    rounds = 100000
+
+    def run(self):
+        for _ in range(self.rounds):
+            #забронювали ресурс з допомогою lock перед лічильником
+            with self.__class__.lock:
+                self.__class__.counter += 1
+
+#створили lock
+Counter.lock = threading.Lock()
+
+
+counter_thread1 = Counter()
+counter_thread2 = Counter()
+
+#запустили потоки
+counter_thread1.start()
+counter_thread2.start()
+
+#об'єднали потоки
+counter_thread1.join()
+counter_thread2.join()
+
+#отримали результат 
+result = Counter.counter
+print("Counter result:", result)
+
+#консоль 
+#Counter result: 200 000
  
 
 Task 2
