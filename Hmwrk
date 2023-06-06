@@ -84,36 +84,36 @@ Create a socket echo server which handles each connection in a separate Thread
 import socket
 import threading
 
-# Function to handle each client connection
-def handle_client(client_socket):
+
+def serve_client(client_socket):
     while True:
-        # Receive data from the client
+        #отримали дані
         data = client_socket.recv(1024)
         if not data:
             break
-        # Echo the received data back to the client
+        #повертаємо отримане від клієнта повідомлення, ехом
         client_socket.sendall(data)
-    # Close the client socket
+    # закрили сокет клієнта
     client_socket.close()
 
-# Create a socket object
+
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Bind the socket to a specific address and port
+#зв'язали сокет за адресою і портом
 server_address = ('localhost', 8000)
 server_socket.bind(server_address)
 
-# Start listening for incoming connections
-server_socket.listen(5)
-print('Server is listening on {}:{}'.format(*server_address))
+#сервер слухає вхідні зв'язки
+server_socket.listen(7)
+print('Server is up & running, and is listening on {}:{}'.format(*server_address))
 
 while True:
-    # Wait for a client connection
+    #формує зв'язок з клієнтом
     client_socket, client_address = server_socket.accept()
     print('New connection from {}:{}'.format(*client_address))
 
-    # Create a new thread to handle the client connection
-    client_thread = threading.Thread(target=handle_client, args=(client_socket,))
+    #створюємо новий окремий потік для обробки зв'язку з клієнтом
+    client_thread = threading.Thread(target=serve_client, args=(client_socket,))
     client_thread.start()
 
  
